@@ -34,7 +34,8 @@ func GetDB(dsn string) *Database {
 }
 
 func (d *Database) createTables() error {
-	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text);`
+	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text);
+				CREATE TABLE IF NOT EXISTS orders(order_id bigint primary key unique, status text, accrual int, login text, uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -90,6 +91,28 @@ func (d *Database) GetHashPass(login string) (string, error) {
 		return "", err
 	}
 	return hashPass, nil
+}
+
+func (d *Database) GetUserFromOrder(ctx context.Context, order int) (string, error) {
+	var user string
+	err := d.DB.QueryRowContext(ctx, "SELECT login FROM orders WHERE order_id = $1", order).Scan(&user)
+	if err != nil {
+		return "", err
+	}
+	return user, nil
+}
+
+func (d *Database) InsertNewOrder(ctx context.Context, order int) error {
+	query := `
+			INSERT INTO orders(order_id, status, login)
+			VALUES ($1, $2, $3)`
+
+	user := ctx.Value("login")
+	_, err := d.DB.ExecContext(ctx, query, order, "NEW", user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (d *Database) selectCounter(name string) (int64, error) {

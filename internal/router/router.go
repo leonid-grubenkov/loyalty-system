@@ -18,7 +18,7 @@ func NewRouter(logger *logging.Logger, svc *service.Service) *Router {
 	r := Router{logger: logger, svc: svc}
 	r.Router = chi.NewRouter()
 
-	r.Router.Use(logger.LoggingHandle, AuthHandle)
+	r.Router.Use(AuthHandle, logger.LoggingHandle)
 	r.Router.Get("/ping", r.pingDBHandler())
 	r.Router.Post("/api/user/register", r.registerHandler())
 	r.Router.Post("/api/user/login", r.loginHandler())
@@ -36,7 +36,7 @@ func (r *Router) pingDBHandler() http.HandlerFunc {
 			res.Write([]byte(err.Error()))
 			return
 		}
-		res.Write([]byte("Postgres connected!"))
 		res.WriteHeader(http.StatusOK)
+		res.Write([]byte("Postgres connected!"))
 	}
 }

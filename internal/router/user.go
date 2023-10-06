@@ -55,8 +55,14 @@ func (r *Router) registerHandler() http.HandlerFunc {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		log.Println(jwt)
-		res.Header().Add("Authorization", jwt)
+
+		expirationTime := time.Now().Add(60 * time.Minute)
+		http.SetCookie(res, &http.Cookie{
+			Name:    "token",
+			Value:   jwt,
+			Expires: expirationTime,
+		})
+
 		res.WriteHeader(http.StatusOK)
 		return
 	}
@@ -97,7 +103,6 @@ func (r *Router) loginHandler() http.HandlerFunc {
 			return
 		}
 		expirationTime := time.Now().Add(60 * time.Minute)
-		log.Println(jwt)
 		http.SetCookie(res, &http.Cookie{
 			Name:    "token",
 			Value:   jwt,
@@ -107,13 +112,6 @@ func (r *Router) loginHandler() http.HandlerFunc {
 		return
 	}
 
-}
-
-func (r *Router) getOrdersHandler() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		res.Header().Set("Content-Type", "text/plain")
-		res.WriteHeader(http.StatusOK)
-	}
 }
 
 func (r *Router) checkBalanceHandler() http.HandlerFunc {

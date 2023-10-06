@@ -33,9 +33,12 @@ func (l *Logger) LoggingHandle(h http.Handler) http.Handler {
 			ResponseWriter: w, // встраиваем оригинальный http.ResponseWriter
 			responseData:   responseData,
 		}
+
 		h.ServeHTTP(&lw, r) // внедряем реализацию http.ResponseWriter
 
 		duration := time.Since(start)
+
+		user := r.Context().Value("login")
 
 		l.Sl.Infoln(
 			"URI", r.RequestURI,
@@ -43,6 +46,7 @@ func (l *Logger) LoggingHandle(h http.Handler) http.Handler {
 			"status", responseData.status, // получаем перехваченный код статуса ответа
 			"duration", duration,
 			"size", responseData.size, // получаем перехваченный размер ответа
+			"user", user,
 		)
 	}
 	return http.HandlerFunc(logFn)

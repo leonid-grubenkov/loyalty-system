@@ -2,7 +2,6 @@ package router
 
 import (
 	"bytes"
-	"log"
 	"net/http"
 
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
@@ -10,9 +9,6 @@ import (
 
 func (r *Router) loadOrderHandler() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-
-		user := req.Context().Value("login")
-		log.Println(user)
 
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -36,13 +32,33 @@ func (r *Router) loadOrderHandler() http.HandlerFunc {
 
 		order := utils.ParseOrder(body)
 		if order == -1 {
-			res.WriteHeader(http.StatusBadRequest)
+			res.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		}
 
-		log.Println(order)
+		err = r.svc.LoadOrder(req.Context(), order)
+		if err != nil {
+			switch err.Error() {
+			case "200":
+				res.WriteHeader(http.StatusOK)
+				return
+			case "409":
+				res.WriteHeader(http.StatusConflict)
+				return
+			default:
+				res.WriteHeader(http.StatusInternalServerError)
+			}
 
-		res.WriteHeader(http.StatusOK)
+		}
+
+		res.WriteHeader(http.StatusAccepted)
 		return
+	}
+}
+
+func (r *Router) getOrdersHandler() http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		// orders, err := r.svc.GetOrders(req.Context())
+		res.WriteHeader(http.StatusOK)
 	}
 }

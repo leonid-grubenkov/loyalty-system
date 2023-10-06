@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"log"
 
@@ -45,5 +47,28 @@ func (s *Service) LoginUser(login, pass string) error {
 		log.Println("wrong pass")
 		return fmt.Errorf("wrong_pass")
 	}
+	return nil
+}
+
+func (s *Service) LoadOrder(ctx context.Context, order int) error {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	user, err := s.db.GetUserFromOrder(ctx, order)
+
+	ctxLogin := ctx.Value("login")
+	if user != "" && user == ctxLogin {
+		return fmt.Errorf("200")
+	}
+	if user != "" && user != ctxLogin {
+		return fmt.Errorf("409")
+	}
+
+	err = s.db.InsertNewOrder(ctx, order)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	return nil
 }

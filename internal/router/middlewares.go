@@ -12,11 +12,15 @@ import (
 func AuthHandle(h http.Handler) http.Handler {
 
 	jwtFn := func(w http.ResponseWriter, r *http.Request) {
-		method := (strings.Split(r.RequestURI, "/"))[3]
-		if method == "login" || method == "register" {
+		uri := strings.Split(r.RequestURI, "/")
+
+		if (len(uri) == 2 && uri[1] == "ping") ||
+			(len(uri) == 4 && (uri[3] == "login" || uri[3] == "register")) {
+
 			h.ServeHTTP(w, r)
 			return
 		}
+
 		token, err := r.Cookie("token")
 		if err != nil {
 			log.Println("empty token")
