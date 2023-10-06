@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"net/http"
+	"os"
 
 	"github.com/leonid-grubenkov/loyalty-system/internal/logging"
 	"github.com/leonid-grubenkov/loyalty-system/internal/router"
@@ -9,11 +11,19 @@ import (
 	"github.com/leonid-grubenkov/loyalty-system/internal/storage"
 )
 
+var options struct {
+	flagRunAddr     string
+	flagDatabaseDsn string
+	flagAccrualAddr string
+}
+
 func main() {
 	logger := logging.GetLogger()
 	defer logger.Logger.Sync()
 
-	db := storage.GetDB("postgres://loyalty:loyalty@localhost:5432/loyalty")
+	parseFlags()
+
+	db := storage.GetDB(options.flagDatabaseDsn)
 	defer db.DB.Close()
 
 	svc := service.NewService(db)
@@ -24,8 +34,25 @@ func main() {
 		"Starting server",
 		"addr", ":8080",
 	)
-	err := http.ListenAndServe(":8080", r.Router)
+	err := http.ListenAndServe(options.flagRunAddr, r.Router)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func parseFlags() {
+	flag.StringVar(&options.flagRunAddr, "a", ":8080", "address and port to run server")
+	flag.StringVar(&options.flagAccrualAddr, "r", ":8090", "address of accrual system")
+	flag.StringVar(&options.flagDatabaseDsn, "d", "postgres://loyalty:loyalty@localhost:5432/loyalty", "database dsn")
+
+	flag.Parse()
+	if envRunAddr := os.Getenv("RUN_ADDRESS"); envRunAddr != "" {
+		options.flagRunAddr = envRunAddr
+	}
+	if envAccrualAddr := os.Getenv("ACCRUAL_SYSTEM_ADDRESS"); envAccrualAddr != "" {
+		options.flagAccrualAddr = envAccrualAddr
+	}
+	if envDatabaseDsn := os.Getenv("DATABASE_DSN"); envDatabaseDsn != "" {
+		options.flagDatabaseDsn = envDatabaseDsn
 	}
 }
