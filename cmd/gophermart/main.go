@@ -52,7 +52,7 @@ func parseFlags() {
 	if envAccrualAddr := os.Getenv("ACCRUAL_SYSTEM_ADDRESS"); envAccrualAddr != "" {
 		options.flagAccrualAddr = envAccrualAddr
 	}
-	if envDatabaseDsn := os.Getenv("DATABASE_DSN"); envDatabaseDsn != "" {
+	if envDatabaseDsn := os.Getenv("DATABASE_URI"); envDatabaseDsn != "" {
 		options.flagDatabaseDsn = envDatabaseDsn
 	}
 }
