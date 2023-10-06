@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
 )
@@ -56,12 +55,14 @@ func (r *Router) registerHandler() http.HandlerFunc {
 			return
 		}
 
-		expirationTime := time.Now().Add(60 * time.Minute)
-		http.SetCookie(res, &http.Cookie{
-			Name:    "token",
-			Value:   jwt,
-			Expires: expirationTime,
-		})
+		// expirationTime := time.Now().Add(60 * time.Minute)
+		// http.SetCookie(res, &http.Cookie{
+		// 	Name:    "token",
+		// 	Value:   jwt,
+		// 	Expires: expirationTime,
+		// })
+
+		res.Header().Add("token", jwt)
 
 		res.WriteHeader(http.StatusOK)
 		return
@@ -102,35 +103,15 @@ func (r *Router) loginHandler() http.HandlerFunc {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		expirationTime := time.Now().Add(60 * time.Minute)
-		http.SetCookie(res, &http.Cookie{
-			Name:    "token",
-			Value:   jwt,
-			Expires: expirationTime,
-		})
+		// expirationTime := time.Now().Add(60 * time.Minute)
+		// http.SetCookie(res, &http.Cookie{
+		// 	Name:    "token",
+		// 	Value:   jwt,
+		// 	Expires: expirationTime,
+		// })
+		res.Header().Add("token", jwt)
 		res.WriteHeader(http.StatusOK)
 		return
 	}
 
-}
-
-func (r *Router) checkBalanceHandler() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		res.Header().Set("Content-Type", "text/plain")
-		res.WriteHeader(http.StatusOK)
-	}
-}
-
-func (r *Router) balanceWithdrawHandler() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		res.Header().Set("Content-Type", "text/plain")
-		res.WriteHeader(http.StatusOK)
-	}
-}
-
-func (r *Router) checkWithdrawalsHandler() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		res.Header().Set("Content-Type", "text/plain")
-		res.WriteHeader(http.StatusOK)
-	}
 }

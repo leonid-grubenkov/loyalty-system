@@ -21,13 +21,14 @@ func AuthHandle(h http.Handler) http.Handler {
 			return
 		}
 
-		token, err := r.Cookie("token")
-		if err != nil {
+		token := r.Header.Get("token")
+		if token == "" {
 			log.Println("empty token")
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			http.Error(w, "empty token", http.StatusUnauthorized)
 			return
 		}
-		login := utils.GetUserLogin(token.Value)
+
+		login := utils.GetUserLogin(token)
 		if login == "" {
 			log.Println("empty login")
 			return

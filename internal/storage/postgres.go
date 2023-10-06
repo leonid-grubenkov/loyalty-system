@@ -35,7 +35,7 @@ func GetDB(dsn string) *Database {
 }
 
 func (d *Database) createTables() error {
-	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text);
+	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text, balance DOUBLE PRECISION, withdrawn DOUBLE PRECISION);
 				CREATE TABLE IF NOT EXISTS orders(order_id bigint primary key unique, status text, accrual int, login text, uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -144,6 +144,25 @@ func (d *Database) GetOrders(ctx context.Context, login string) ([]models.Order,
 	}
 
 	return orders, nil
+}
+
+func (d *Database) CheckBalance(ctx context.Context) (*models.BalanceInfo, error) {
+	var balance sql.NullFloat64
+	var withdrawn sql.NullFloat64
+	var info models.BalanceInfo
+
+	usetLogin := ctx.Value("login")
+	err := d.DB.QueryRowContext(ctx, "SELECT balance, withdrawn FROM users WHERE login = $1", usetLogin).Scan(&balance, &withdrawn)
+	if err != nil {
+		return nil, err
+	}
+	if balance.Valid {
+		info.Balance = balance.Float64
+	}
+	if withdrawn.Valid {
+		info.Withdrawn = withdrawn.Float64
+	}
+	return &info, nil
 }
 
 func (d *Database) selectCounter(name string) (int64, error) {

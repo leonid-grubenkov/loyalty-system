@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/leonid-grubenkov/loyalty-system/internal/models"
+
 	"github.com/leonid-grubenkov/loyalty-system/internal/storage"
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
 )
@@ -89,4 +90,17 @@ func (s *Service) GetOrders(ctx context.Context) (*[]models.Order, error) {
 	}
 
 	return &orders, nil
+}
+
+func (s *Service) CheckBalance(ctx context.Context) (*models.BalanceInfo, error) {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	info, err := s.db.CheckBalance(ctx)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return info, nil
 }

@@ -24,6 +24,7 @@ func NewRouter(logger *logging.Logger, svc *service.Service) *Router {
 	r.Router.Post("/api/user/login", r.loginHandler())
 	r.Router.Post("/api/user/orders", r.loadOrderHandler())
 	r.Router.Get("/api/user/orders", r.getOrdersHandler())
+	r.Router.Get("/api/user/balance", r.checkBalanceHandler())
 
 	return &r
 }
