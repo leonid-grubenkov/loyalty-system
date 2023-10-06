@@ -8,6 +8,7 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/leonid-grubenkov/loyalty-system/internal/models"
 )
 
 type Database struct {
@@ -113,6 +114,36 @@ func (d *Database) InsertNewOrder(ctx context.Context, order int) error {
 		return err
 	}
 	return nil
+}
+
+func (d *Database) GetOrders(ctx context.Context, login string) ([]models.Order, error) {
+	var orders []models.Order
+
+	rows, err := d.DB.QueryContext(ctx, "SELECT order_id, status, accrual, uploaded_at FROM orders WHERE login = $1 ORDER BY uploaded_at DESC", login)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var order models.Order
+		var accrual sql.NullInt64
+
+		if err := rows.Scan(&order.Number, &order.Status, &accrual, &order.UploadedAt); err != nil {
+			return nil, err
+		}
+		if accrual.Valid {
+			order.Accrual = int(accrual.Int64)
+		}
+
+		orders = append(orders, order)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return orders, nil
 }
 
 func (d *Database) selectCounter(name string) (int64, error) {

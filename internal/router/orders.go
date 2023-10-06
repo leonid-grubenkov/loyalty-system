@@ -2,6 +2,8 @@ package router
 
 import (
 	"bytes"
+	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
@@ -58,7 +60,25 @@ func (r *Router) loadOrderHandler() http.HandlerFunc {
 
 func (r *Router) getOrdersHandler() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		// orders, err := r.svc.GetOrders(req.Context())
+		orders, err := r.svc.GetOrders(req.Context())
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if len(*orders) == 0 {
+			res.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		resp, err := json.Marshal(orders)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
+		res.Write(resp)
 	}
 }

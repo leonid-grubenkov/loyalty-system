@@ -7,6 +7,7 @@ import (
 
 	"log"
 
+	"github.com/leonid-grubenkov/loyalty-system/internal/models"
 	"github.com/leonid-grubenkov/loyalty-system/internal/storage"
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
 )
@@ -71,4 +72,21 @@ func (s *Service) LoadOrder(ctx context.Context, order int) error {
 	}
 
 	return nil
+}
+
+func (s *Service) GetOrders(ctx context.Context) (*[]models.Order, error) {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	userLogin := ctx.Value("login")
+	if userLogin == "" {
+		return nil, fmt.Errorf("no login")
+	}
+
+	orders, err := s.db.GetOrders(ctx, fmt.Sprint(userLogin))
+	if err != nil {
+		return nil, err
+	}
+
+	return &orders, nil
 }
