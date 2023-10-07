@@ -46,7 +46,7 @@ func Worker(id int, postUrl string, orders <-chan int) {
 
 func getAccrual(order int, postUrl string) (*models.Order, error) {
 	for {
-		reqUrl := fmt.Sprint(postUrl, "/", order)
+		reqUrl := fmt.Sprint(postUrl, "/api/orders/", order)
 		log.Println("order", order, "URL - ", reqUrl)
 		r, err := http.NewRequest("GET", reqUrl, nil)
 		if err != nil {

@@ -49,7 +49,7 @@ func main() {
 
 func parseFlags() {
 	flag.StringVar(&options.flagRunAddr, "a", ":8080", "address and port to run server")
-	flag.StringVar(&options.flagAccrualAddr, "r", "http://localhost:8090/api/orders", "address of accrual system")
+	flag.StringVar(&options.flagAccrualAddr, "r", "http://localhost:8090", "address of accrual system")
 	flag.StringVar(&options.flagDatabaseDsn, "d", "postgres://loyalty:loyalty@localhost:5432/loyalty", "database dsn")
 
 	flag.Parse()
