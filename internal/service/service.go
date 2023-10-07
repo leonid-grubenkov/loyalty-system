@@ -14,11 +14,12 @@ import (
 )
 
 type Service struct {
-	db *storage.Database
+	db     *storage.Database
+	orders chan int
 }
 
-func NewService(db *storage.Database) *Service {
-	return &Service{db: db}
+func NewService(db *storage.Database, orders chan int) *Service {
+	return &Service{db: db, orders: orders}
 }
 
 func (s *Service) Ping() error {
@@ -71,7 +72,7 @@ func (s *Service) LoadOrder(ctx context.Context, order int) error {
 		log.Println(err)
 		return err
 	}
-
+	s.orders <- order
 	return nil
 }
 

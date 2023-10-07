@@ -26,7 +26,14 @@ func main() {
 	db := storage.GetDB(options.flagDatabaseDsn)
 	defer db.DB.Close()
 
-	svc := service.NewService(db)
+	const numJobs = 10
+	orders := make(chan int, numJobs)
+
+	for w := 1; w <= 5; w++ {
+		go service.Worker(w, options.flagAccrualAddr, orders)
+	}
+
+	svc := service.NewService(db, orders)
 
 	r := router.NewRouter(logger, svc)
 
@@ -42,7 +49,7 @@ func main() {
 
 func parseFlags() {
 	flag.StringVar(&options.flagRunAddr, "a", ":8080", "address and port to run server")
-	flag.StringVar(&options.flagAccrualAddr, "r", ":8090", "address of accrual system")
+	flag.StringVar(&options.flagAccrualAddr, "r", "http://localhost:8090/api/orders", "address of accrual system")
 	flag.StringVar(&options.flagDatabaseDsn, "d", "postgres://loyalty:loyalty@localhost:5432/loyalty", "database dsn")
 
 	flag.Parse()
