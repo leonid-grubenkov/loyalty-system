@@ -9,7 +9,7 @@ type Order struct {
 	Number     string     `json:"number"`
 	Login      string     `json:"login"`
 	Status     string     `json:"status"`
-	Accrual    int        `json:"accrual"`
+	Accrual    float64    `json:"accrual"`
 	UploadedAt CustomTime `json:"uploaded_at"`
 }
 
