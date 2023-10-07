@@ -108,7 +108,7 @@ func getAccrual(order int, postUrl string) (*models.Order, error) {
 			}
 		}
 
-		time.Sleep(5 * time.Second)
+		time.Sleep(2 * time.Second)
 
 	}
 }

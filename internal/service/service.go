@@ -77,7 +77,7 @@ func (s *Service) LoadOrder(ctx context.Context, order int) error {
 }
 
 func (s *Service) GetOrders(ctx context.Context) (*[]models.Order, error) {
-	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	userLogin := ctx.Value("login")
@@ -94,7 +94,7 @@ func (s *Service) GetOrders(ctx context.Context) (*[]models.Order, error) {
 }
 
 func (s *Service) CheckBalance(ctx context.Context) (*models.BalanceInfo, error) {
-	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	info, err := s.db.CheckBalance(ctx)
