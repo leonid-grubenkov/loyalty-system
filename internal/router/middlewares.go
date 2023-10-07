@@ -31,6 +31,7 @@ func AuthHandle(h http.Handler) http.Handler {
 		login := utils.GetUserLogin(tokenSplit[1])
 		if login == "" {
 			log.Println("empty login")
+			http.Error(w, "empty token", http.StatusUnauthorized)
 			return
 		}
 
