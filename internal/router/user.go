@@ -61,8 +61,7 @@ func (r *Router) registerHandler() http.HandlerFunc {
 		// 	Value:   jwt,
 		// 	Expires: expirationTime,
 		// })
-
-		res.Header().Add("token", jwt)
+		res.Header().Set("Authorization", "Bearer "+jwt)
 
 		res.WriteHeader(http.StatusOK)
 		return
@@ -109,7 +108,7 @@ func (r *Router) loginHandler() http.HandlerFunc {
 		// 	Value:   jwt,
 		// 	Expires: expirationTime,
 		// })
-		res.Header().Add("token", jwt)
+		res.Header().Set("Authorization", "Bearer "+jwt)
 		res.WriteHeader(http.StatusOK)
 		return
 	}

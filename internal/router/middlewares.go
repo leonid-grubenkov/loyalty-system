@@ -21,14 +21,14 @@ func AuthHandle(h http.Handler) http.Handler {
 			return
 		}
 
-		token := r.Header.Get("token")
-		if token == "" {
-			log.Println("empty token")
+		token := r.Header.Get("Authorization")
+		tokenSplit := strings.Split(token, " ")
+		if len(tokenSplit) != 2 || tokenSplit[0] != "Bearer" {
 			http.Error(w, "empty token", http.StatusUnauthorized)
 			return
 		}
 
-		login := utils.GetUserLogin(token)
+		login := utils.GetUserLogin(tokenSplit[1])
 		if login == "" {
 			log.Println("empty login")
 			return
