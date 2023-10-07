@@ -36,7 +36,7 @@ func GetDB(dsn string) *Database {
 
 func (d *Database) createTables() error {
 	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text, balance DOUBLE PRECISION, withdrawn DOUBLE PRECISION);
-				CREATE TABLE IF NOT EXISTS orders(order_id bigint primary key unique, status text, accrual int, login text, uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
+				CREATE TABLE IF NOT EXISTS orders(order_id bigint primary key unique, status text, accrual DOUBLE PRECISION, login text, uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -127,13 +127,13 @@ func (d *Database) GetOrders(ctx context.Context, login string) ([]models.Order,
 
 	for rows.Next() {
 		var order models.Order
-		var accrual sql.NullInt64
+		var accrual sql.NullFloat64
 
 		if err := rows.Scan(&order.Number, &order.Status, &accrual, &order.UploadedAt); err != nil {
 			return nil, err
 		}
 		if accrual.Valid {
-			order.Accrual = int(accrual.Int64)
+			order.Accrual = accrual.Float64
 		}
 
 		orders = append(orders, order)
@@ -178,7 +178,7 @@ func (d *Database) ChangeStatus(ctx context.Context, order int, status string) e
 	return nil
 }
 
-func (d *Database) ChangeAccrual(ctx context.Context, order int, status string, accrual int) error {
+func (d *Database) ChangeAccrual(ctx context.Context, order int, status string, accrual float64) error {
 	query := `
 		UPDATE orders
 		SET status = $2, accrual = $3
@@ -191,7 +191,7 @@ func (d *Database) ChangeAccrual(ctx context.Context, order int, status string, 
 	return nil
 }
 
-func (d *Database) AddBallance(ctx context.Context, login string, accrual int) error {
+func (d *Database) AddBallance(ctx context.Context, login string, accrual float64) error {
 	query := `
 	UPDATE users
 	SET balance = balance + $2
