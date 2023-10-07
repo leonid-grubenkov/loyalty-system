@@ -77,7 +77,7 @@ func (r *Router) getOrdersHandler() http.HandlerFunc {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		req.Header.Set("Content-Type", "application/json")
+		res.Header().Add("content-type", "application/json")
 		res.WriteHeader(http.StatusOK)
 		res.Write(resp)
 	}
