@@ -6,7 +6,7 @@ import (
 )
 
 type Order struct {
-	Number     int        `json:"number"`
+	Number     string     `json:"number"`
 	Status     string     `json:"status"`
 	Accrual    int        `json:"accrual"`
 	UploadedAt CustomTime `json:"uploaded_at"`
