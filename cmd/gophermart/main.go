@@ -29,11 +29,11 @@ func main() {
 	const numJobs = 10
 	orders := make(chan int, numJobs)
 
-	for w := 1; w <= 5; w++ {
-		go service.Worker(w, options.flagAccrualAddr, orders)
-	}
-
 	svc := service.NewService(db, orders)
+
+	for w := 1; w <= 5; w++ {
+		go svc.Worker(w, options.flagAccrualAddr, orders)
+	}
 
 	r := router.NewRouter(logger, svc)
 

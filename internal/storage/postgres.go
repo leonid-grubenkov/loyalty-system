@@ -164,3 +164,42 @@ func (d *Database) CheckBalance(ctx context.Context) (*models.BalanceInfo, error
 	}
 	return &info, nil
 }
+
+func (d *Database) ChangeStatus(ctx context.Context, order int, status string) error {
+	query := `
+		UPDATE orders
+		SET status = $2
+		WHERE order_id = $1`
+
+	_, err := d.DB.ExecContext(ctx, query, order, status)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *Database) ChangeAccrual(ctx context.Context, order int, status string, accrual int) error {
+	query := `
+		UPDATE orders
+		SET status = $2, accrual = $3
+		WHERE order_id = $1`
+
+	_, err := d.DB.ExecContext(ctx, query, order, status, accrual)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *Database) AddBallance(ctx context.Context, login string, accrual int) error {
+	query := `
+	UPDATE users
+	SET balance = balance + $2
+	WHERE login = $1`
+
+	_, err := d.DB.ExecContext(ctx, query, login, float64(accrual))
+	if err != nil {
+		return err
+	}
+	return nil
+}

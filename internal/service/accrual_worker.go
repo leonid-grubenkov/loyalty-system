@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -15,32 +16,52 @@ var cliet http.Client
 
 const posturl = "http://localhost:8090/api/orders"
 
-func Worker(id int, postUrl string, orders <-chan int) {
+func (s *Service) Worker(id int, postUrl string, orders <-chan int) {
 	for order := range orders {
 		log.Println("worker", id, "start order", order)
 		for {
 			resOrder, err := getAccrual(order, postUrl)
-
-			switch resOrder.Status {
-			case "REGISTERED":
-				log.Println(order, " - ", resOrder.Status)
-			case "INVALID":
-				log.Println(order, " - ", resOrder.Status)
-				break
-			case "PROCESSING":
-				log.Println(order, " - ", resOrder.Status)
-			case "PROCESSED":
-				log.Println(order, " - ", resOrder.Status)
-				break
-			default:
-				log.Println(order, " - ", resOrder.Status)
-			}
 			if err != nil {
 				log.Println(err)
 				break
 			}
+
+			switch resOrder.Status {
+			case "REGISTERED":
+				log.Println(order, " - ", resOrder.Status)
+				err := s.db.ChangeStatus(context.Background(), order, resOrder.Status)
+				if err != nil {
+					log.Println("error status registred - ", err)
+				}
+			case "INVALID":
+				log.Println(order, " - ", resOrder.Status)
+				err := s.db.ChangeStatus(context.Background(), order, resOrder.Status)
+				if err != nil {
+					log.Println("error status invalid - ", err)
+				}
+				break
+			case "PROCESSING":
+				log.Println(order, " - ", resOrder.Status)
+				err := s.db.ChangeStatus(context.Background(), order, resOrder.Status)
+				if err != nil {
+					log.Println("error status processing - ", err)
+				}
+			case "PROCESSED":
+				log.Println(order, " - ", resOrder.Status)
+				err := s.db.ChangeAccrual(context.Background(), order, resOrder.Status, resOrder.Accrual)
+				if err != nil {
+					log.Println("error status processed changeaccrual - ", err)
+				}
+				err = s.db.AddBallance(context.Background(), resOrder.Login, resOrder.Accrual)
+				if err != nil {
+					log.Println("error status processed addbalance - ", err)
+				}
+				break
+			default:
+				log.Println(order, " - ", resOrder.Status)
+			}
 		}
-		log.Println("рабочий", id, "finish", order)
+		log.Println("worker", id, "finish order ", order)
 	}
 }
 

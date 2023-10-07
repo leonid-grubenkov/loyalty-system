@@ -7,6 +7,7 @@ import (
 
 type Order struct {
 	Number     string     `json:"number"`
+	Login      string     `json:"login"`
 	Status     string     `json:"status"`
 	Accrual    int        `json:"accrual"`
 	UploadedAt CustomTime `json:"uploaded_at"`
