@@ -97,6 +97,8 @@ func getAccrual(order int, postUrl string) (*models.Order, error) {
 					return nil, err
 				}
 
+				return &order, nil
+
 			case http.StatusNoContent:
 				log.Println(order, "not register")
 			case http.StatusTooManyRequests:
