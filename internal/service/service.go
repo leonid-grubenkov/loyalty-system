@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -61,7 +62,7 @@ func (s *Service) LoadOrder(ctx context.Context, order int) error {
 	defer cancel()
 
 	user, err := s.db.GetUserFromOrder(ctx, order)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 

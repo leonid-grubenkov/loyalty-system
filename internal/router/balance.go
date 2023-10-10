@@ -57,7 +57,12 @@ func (r *Router) balanceWithdrawHandler() http.HandlerFunc {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-		orderNum := utils.ParseOrder(withdrawnInfo.Order)
+		orderNum, err := utils.ParseOrder(withdrawnInfo.Order)
+		if err != nil {
+			log.Println("err when parse order num: ", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		if orderNum == -1 {
 			res.WriteHeader(http.StatusUnprocessableEntity)
 			return

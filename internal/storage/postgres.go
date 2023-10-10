@@ -107,12 +107,14 @@ func (d *Database) GetUserFromOrder(ctx context.Context, order int) (string, err
 	return user, nil
 }
 
+const loginKey string = "login"
+
 func (d *Database) InsertNewOrder(ctx context.Context, order int) error {
 	query := `
 			INSERT INTO orders(order_id, status, login)
 			VALUES ($1, $2, $3)`
 
-	user := ctx.Value("login")
+	user := ctx.Value(loginKey)
 	_, err := d.DB.ExecContext(ctx, query, order, "NEW", user)
 	if err != nil {
 		return err

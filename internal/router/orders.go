@@ -32,7 +32,12 @@ func (r *Router) loadOrderHandler() http.HandlerFunc {
 
 		body := buf.String()
 
-		order := utils.ParseOrder(body)
+		order, err := utils.ParseOrder(body)
+		if err != nil {
+			log.Println("err when parse order num: ", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		if order == -1 {
 			res.WriteHeader(http.StatusUnprocessableEntity)
 			return
@@ -40,6 +45,8 @@ func (r *Router) loadOrderHandler() http.HandlerFunc {
 
 		err = r.svc.LoadOrder(req.Context(), order)
 		if err != nil {
+			log.Println(err)
+
 			switch err.Error() {
 			case "200":
 				res.WriteHeader(http.StatusOK)
@@ -49,6 +56,7 @@ func (r *Router) loadOrderHandler() http.HandlerFunc {
 				return
 			default:
 				res.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 
 		}

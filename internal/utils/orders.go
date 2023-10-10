@@ -4,18 +4,18 @@ import (
 	"strconv"
 )
 
-func ParseOrder(body string) int {
+func ParseOrder(body string) (int, error) {
 
 	num, err := strconv.Atoi(body)
 	if err != nil {
-		return -1
+		return -1, err
 	}
 
 	if !isValidLuhn(body) {
-		return -1
+		return -1, err
 	}
 
-	return num
+	return num, nil
 }
 
 func isValidLuhn(s string) bool {
