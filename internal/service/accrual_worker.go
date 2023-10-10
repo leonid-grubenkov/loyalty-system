@@ -19,6 +19,7 @@ const posturl = "http://localhost:8090/api/orders"
 func (s *Service) Worker(id int, postUrl string, orders <-chan int) {
 	for order := range orders {
 		log.Println("worker", id, "start order", order)
+	outLabel:
 		for {
 			resOrder, err := getAccrual(order, postUrl)
 			if err != nil {
@@ -56,7 +57,7 @@ func (s *Service) Worker(id int, postUrl string, orders <-chan int) {
 				if err != nil {
 					log.Println("error status processed addbalance - ", err)
 				}
-				break
+				break outLabel
 			default:
 				log.Println(order, " - ", resOrder.Status)
 			}
