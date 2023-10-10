@@ -49,13 +49,15 @@ func (s *Service) Worker(id int, postURL string, orders <-chan int) {
 				}
 			case "PROCESSED":
 				log.Println(order, " - ", resOrder.Status)
-				log.Println(resOrder.Accrual)
-				log.Println(resOrder)
 				err := s.db.ChangeAccrual(context.Background(), order, resOrder.Status, resOrder.Accrual)
 				if err != nil {
 					log.Println("error status processed changeaccrual - ", err)
 				}
-				err = s.db.AddBalance(context.Background(), resOrder.Login, resOrder.Accrual)
+				user, err := s.db.GetUserFromOrder(context.Background(), order)
+				if err != nil {
+					log.Println("error status processed get user - ", err)
+				}
+				err = s.db.AddBalance(context.Background(), user, resOrder.Accrual)
 				if err != nil {
 					log.Println("error status processed addbalance - ", err)
 				}
