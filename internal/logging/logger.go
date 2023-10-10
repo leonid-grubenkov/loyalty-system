@@ -12,6 +12,8 @@ type Logger struct {
 	Logger *zap.Logger
 }
 
+const loginKey string = "login"
+
 func GetLogger() *Logger {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -38,7 +40,7 @@ func (l *Logger) LoggingHandle(h http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
-		user := r.Context().Value("login")
+		user := r.Context().Value(loginKey)
 
 		l.Sl.Infoln(
 			"URI", r.RequestURI,

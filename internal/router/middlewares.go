@@ -9,9 +9,7 @@ import (
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
 )
 
-type contextKey string
-
-const loginKey contextKey = "login"
+const loginKey string = "login"
 
 func AuthHandle(h http.Handler) http.Handler {
 

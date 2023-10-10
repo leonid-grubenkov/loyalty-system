@@ -19,6 +19,8 @@ type Service struct {
 	orders chan int
 }
 
+const loginKey string = "login"
+
 func NewService(db *storage.Database, orders chan int) *Service {
 	return &Service{db: db, orders: orders}
 }
@@ -63,7 +65,7 @@ func (s *Service) LoadOrder(ctx context.Context, order int) error {
 		return err
 	}
 
-	ctxLogin := ctx.Value("login")
+	ctxLogin := ctx.Value(loginKey)
 	if user != "" && user == ctxLogin {
 		return fmt.Errorf("200")
 	}
@@ -84,7 +86,7 @@ func (s *Service) GetOrders(ctx context.Context) (*[]models.Order, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	userLogin := ctx.Value("login")
+	userLogin := ctx.Value(loginKey)
 	if userLogin == "" {
 		return nil, fmt.Errorf("no login")
 	}
@@ -114,7 +116,7 @@ func (s *Service) NewWithdrawn(ctx context.Context, order int, sum float64) erro
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	userLogin, ok := ctx.Value("login").(string)
+	userLogin, ok := ctx.Value(loginKey).(string)
 	if !ok {
 		return fmt.Errorf("userLogin is not a string")
 	}
@@ -150,7 +152,7 @@ func (s *Service) GetWithdrawns(ctx context.Context) (*[]models.Withdraw, error)
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	userLogin := ctx.Value("login")
+	userLogin := ctx.Value(loginKey)
 	if userLogin == "" {
 		return nil, fmt.Errorf("no login")
 	}

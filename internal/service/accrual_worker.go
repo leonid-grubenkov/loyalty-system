@@ -40,7 +40,7 @@ func (s *Service) Worker(id int, postURL string, orders <-chan int) {
 				if err != nil {
 					log.Println("error status invalid - ", err)
 				}
-				break
+				break outLabel
 			case "PROCESSING":
 				log.Println(order, " - ", resOrder.Status)
 				err := s.db.ChangeStatus(context.Background(), order, resOrder.Status)
