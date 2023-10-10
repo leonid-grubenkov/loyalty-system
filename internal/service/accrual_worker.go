@@ -61,8 +61,6 @@ func (s *Service) Worker(id int, postURL string, orders <-chan int) {
 				if err != nil {
 					log.Println("error status processed addbalance - ", err)
 				}
-				info, err := s.db.CheckBalance(context.Background(), user)
-				log.Println(info)
 				break outLabel
 			default:
 				log.Println(order, " - ", resOrder.Status)

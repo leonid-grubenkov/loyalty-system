@@ -212,7 +212,8 @@ func (d *Database) RemoveBalance(ctx context.Context, login string, sum float64)
         SET balance = CASE
             WHEN (balance - $2) >= 0 THEN (balance - $2)
             ELSE balance
-        END
+        END,
+		withdrawn = withdrawn + $2
         WHERE login = $1
     `
 
