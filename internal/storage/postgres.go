@@ -152,13 +152,12 @@ func (d *Database) GetOrders(ctx context.Context, login string) ([]models.Order,
 	return orders, nil
 }
 
-func (d *Database) CheckBalance(ctx context.Context) (*models.BalanceInfo, error) {
+func (d *Database) CheckBalance(ctx context.Context, login string) (*models.BalanceInfo, error) {
 	var balance sql.NullFloat64
 	var withdrawn sql.NullFloat64
 	var info models.BalanceInfo
 
-	usetLogin := ctx.Value("login")
-	err := d.DB.QueryRowContext(ctx, "SELECT balance, withdrawn FROM users WHERE login = $1", usetLogin).Scan(&balance, &withdrawn)
+	err := d.DB.QueryRowContext(ctx, "SELECT balance, withdrawn FROM users WHERE login = $1", login).Scan(&balance, &withdrawn)
 	if err != nil {
 		return nil, err
 	}

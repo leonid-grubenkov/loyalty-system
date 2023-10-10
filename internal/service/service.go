@@ -104,7 +104,12 @@ func (s *Service) CheckBalance(ctx context.Context) (*models.BalanceInfo, error)
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	info, err := s.db.CheckBalance(ctx)
+	userLogin, ok := ctx.Value(loginKey).(string)
+	if !ok {
+		return nil, fmt.Errorf("userLogin is not a string")
+	}
+
+	info, err := s.db.CheckBalance(ctx, userLogin)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -122,7 +127,7 @@ func (s *Service) NewWithdrawn(ctx context.Context, order int, sum float64) erro
 		return fmt.Errorf("userLogin is not a string")
 	}
 
-	balance, err := s.db.CheckBalance(ctx)
+	balance, err := s.db.CheckBalance(ctx, userLogin)
 	if err != nil {
 		return err
 	}
