@@ -35,7 +35,7 @@ func GetDB(dsn string) *Database {
 }
 
 func (d *Database) createTables() error {
-	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text, balance DOUBLE PRECISION, withdrawn DOUBLE PRECISION);
+	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text, balance DOUBLE PRECISION NOT NULL DEFAULT 0.0, withdrawn DOUBLE PRECISION NOT NULL DEFAULT 0.0);
 				CREATE TABLE IF NOT EXISTS orders(order_id bigint primary key unique, status text, accrual DOUBLE PRECISION, login text, uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
 				CREATE TABLE IF NOT EXISTS withdrawns(order_id bigint primary key unique, sum_value DOUBLE PRECISION, login text, processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
 
@@ -153,19 +153,11 @@ func (d *Database) GetOrders(ctx context.Context, login string) ([]models.Order,
 }
 
 func (d *Database) CheckBalance(ctx context.Context, login string) (*models.BalanceInfo, error) {
-	var balance sql.NullFloat64
-	var withdrawn sql.NullFloat64
 	var info models.BalanceInfo
 
-	err := d.DB.QueryRowContext(ctx, "SELECT balance, withdrawn FROM users WHERE login = $1", login).Scan(&balance, &withdrawn)
+	err := d.DB.QueryRowContext(ctx, "SELECT balance, withdrawn FROM users WHERE login = $1", login).Scan(&info.Balance, &info.Withdrawn)
 	if err != nil {
 		return nil, err
-	}
-	if balance.Valid {
-		info.Balance = balance.Float64
-	}
-	if withdrawn.Valid {
-		info.Withdrawn = withdrawn.Float64
 	}
 	return &info, nil
 }
