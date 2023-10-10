@@ -52,7 +52,7 @@ func (s *Service) Worker(id int, postUrl string, orders <-chan int) {
 				if err != nil {
 					log.Println("error status processed changeaccrual - ", err)
 				}
-				err = s.db.AddBallance(context.Background(), resOrder.Login, resOrder.Accrual)
+				err = s.db.AddBalance(context.Background(), resOrder.Login, resOrder.Accrual)
 				if err != nil {
 					log.Println("error status processed addbalance - ", err)
 				}
@@ -96,6 +96,7 @@ func getAccrual(order int, postUrl string) (*models.Order, error) {
 				if err = json.Unmarshal(buf.Bytes(), &order); err != nil {
 					return nil, err
 				}
+				log.Println(order.Status)
 
 				return &order, nil
 

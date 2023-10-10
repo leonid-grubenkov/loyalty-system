@@ -36,7 +36,8 @@ func GetDB(dsn string) *Database {
 
 func (d *Database) createTables() error {
 	query := `CREATE TABLE IF NOT EXISTS users(login text primary key unique, pass_hash text, balance DOUBLE PRECISION, withdrawn DOUBLE PRECISION);
-				CREATE TABLE IF NOT EXISTS orders(order_id bigint primary key unique, status text, accrual DOUBLE PRECISION, login text, uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
+				CREATE TABLE IF NOT EXISTS orders(order_id bigint primary key unique, status text, accrual DOUBLE PRECISION, login text, uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+				CREATE TABLE IF NOT EXISTS withdrawns(order_id bigint primary key unique, sum_value DOUBLE PRECISION, login text, processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -191,7 +192,7 @@ func (d *Database) ChangeAccrual(ctx context.Context, order int, status string, 
 	return nil
 }
 
-func (d *Database) AddBallance(ctx context.Context, login string, accrual float64) error {
+func (d *Database) AddBalance(ctx context.Context, login string, accrual float64) error {
 	query := `
 	UPDATE users
 	SET balance = balance + $2
@@ -202,4 +203,61 @@ func (d *Database) AddBallance(ctx context.Context, login string, accrual float6
 		return err
 	}
 	return nil
+}
+
+func (d *Database) RemoveBalance(ctx context.Context, login string, sum float64) error {
+	query := `
+        UPDATE users
+        SET balance = CASE
+            WHEN (balance - $2) >= 0 THEN (balance - $2)
+            ELSE balance
+        END
+        WHERE login = $1
+    `
+
+	_, err := d.DB.ExecContext(ctx, query, login, sum)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *Database) CreateWithdrawn(ctx context.Context, order int, sum float64, login string) error {
+	query := `
+	INSERT INTO withdrawns(order_id, sum_value, login)
+	VALUES ($1, $2, $3)`
+
+	_, err := d.DB.ExecContext(ctx, query, order, sum, login)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *Database) GetWithdrawns(ctx context.Context, login string) ([]models.Withdraw, error) {
+	var withdrawns []models.Withdraw
+
+	rows, err := d.DB.QueryContext(ctx, "SELECT order_id, sum_value, processed_at FROM withdrawns WHERE login = $1 ORDER BY processed_at ASC", login)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var withdraw models.Withdraw
+
+		if err := rows.Scan(&withdraw.Number, &withdraw.Sum, &withdraw.ProcessedAt); err != nil {
+			return nil, err
+		}
+
+		withdrawns = append(withdrawns, withdraw)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return withdrawns, nil
 }

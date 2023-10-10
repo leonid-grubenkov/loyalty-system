@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"log"
@@ -104,4 +105,57 @@ func (s *Service) CheckBalance(ctx context.Context) (*models.BalanceInfo, error)
 	}
 
 	return info, nil
+}
+
+func (s *Service) NewWithdrawn(ctx context.Context, order int, sum float64) error {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	userLogin, ok := ctx.Value("login").(string)
+	if !ok {
+		return fmt.Errorf("userLogin is not a string")
+	}
+
+	balance, err := s.db.CheckBalance(ctx)
+	if err != nil {
+		return err
+	}
+
+	if balance.Balance < sum {
+		return fmt.Errorf("insufficient balance")
+	}
+
+	err = s.db.CreateWithdrawn(ctx, order, sum, userLogin)
+	if err != nil {
+		log.Println("error when create withdrawn: ", err)
+		if strings.Contains(err.Error(), "duplicate") {
+			return fmt.Errorf("already registred")
+		}
+		return err
+	}
+
+	err = s.db.RemoveBalance(ctx, userLogin, sum)
+	if err != nil {
+		log.Println("error when remove blance: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) GetWithdrawns(ctx context.Context) (*[]models.Withdraw, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	userLogin := ctx.Value("login")
+	if userLogin == "" {
+		return nil, fmt.Errorf("no login")
+	}
+
+	withdrawans, err := s.db.GetWithdrawns(ctx, fmt.Sprint(userLogin))
+	if err != nil {
+		return nil, err
+	}
+
+	return &withdrawans, nil
 }
