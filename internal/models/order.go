@@ -31,5 +31,5 @@ func (ct *CustomTime) Scan(value interface{}) error {
 		ct.Time = t
 		return nil
 	}
-	return fmt.Errorf("Unsupported type for CustomTime: %T", value)
+	return fmt.Errorf("unsupported type for CustomTime: %T", value)
 }
