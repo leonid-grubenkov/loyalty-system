@@ -203,9 +203,16 @@ func (d *Database) AddBalance(ctx context.Context, login string, accrual float64
 	SET balance = balance + $2
 	WHERE login = $1`
 
-	_, err := d.DB.ExecContext(ctx, query, login, float64(accrual))
+	res, err := d.DB.ExecContext(ctx, query, login, accrual)
 	if err != nil {
 		return err
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows > 0 {
+		log.Println("user table updated")
 	}
 	return nil
 }
