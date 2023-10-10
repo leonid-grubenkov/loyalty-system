@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/leonid-grubenkov/loyalty-system/internal/models"
 	"go.uber.org/zap"
 )
 
@@ -11,8 +12,6 @@ type Logger struct {
 	Sl     *zap.SugaredLogger
 	Logger *zap.Logger
 }
-
-const loginKey string = "login"
 
 func GetLogger() *Logger {
 	logger, err := zap.NewDevelopment()
@@ -40,7 +39,7 @@ func (l *Logger) LoggingHandle(h http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
-		user := r.Context().Value(loginKey)
+		user := r.Context().Value(models.LoginKey)
 
 		l.Sl.Infoln(
 			"URI", r.RequestURI,

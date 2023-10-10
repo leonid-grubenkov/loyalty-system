@@ -6,12 +6,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/leonid-grubenkov/loyalty-system/internal/models"
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
 )
-
-// type ctxKey string
-
-const loginKey string = "login"
 
 func AuthHandle(h http.Handler) http.Handler {
 
@@ -39,7 +36,7 @@ func AuthHandle(h http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), loginKey, login)
+		ctx := context.WithValue(r.Context(), models.LoginKey, login)
 
 		r = r.WithContext(ctx)
 
