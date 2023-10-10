@@ -197,6 +197,7 @@ func (d *Database) ChangeAccrual(ctx context.Context, order int, status string, 
 }
 
 func (d *Database) AddBalance(ctx context.Context, login string, accrual float64) error {
+	log.Println("add balance - ", login, " sum - ", accrual)
 	query := `
 	UPDATE users
 	SET balance = balance + $2

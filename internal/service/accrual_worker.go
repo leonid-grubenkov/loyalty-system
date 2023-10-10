@@ -57,8 +57,6 @@ func (s *Service) Worker(id int, postURL string, orders <-chan int) {
 				if err != nil {
 					log.Println("error status processed get user - ", err)
 				}
-				log.Println(user)
-				log.Println(resOrder.Accrual)
 				err = s.db.AddBalance(context.Background(), user, resOrder.Accrual)
 				if err != nil {
 					log.Println("error status processed addbalance - ", err)
