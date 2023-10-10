@@ -30,7 +30,7 @@ func (r *Router) loadOrderHandler() http.HandlerFunc {
 			return
 		}
 
-		body := string(buf.Bytes())
+		body := buf.String()
 
 		order := utils.ParseOrder(body)
 		if order == -1 {
@@ -54,7 +54,6 @@ func (r *Router) loadOrderHandler() http.HandlerFunc {
 		}
 
 		res.WriteHeader(http.StatusAccepted)
-		return
 	}
 }
 

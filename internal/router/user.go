@@ -55,16 +55,8 @@ func (r *Router) registerHandler() http.HandlerFunc {
 			return
 		}
 
-		// expirationTime := time.Now().Add(60 * time.Minute)
-		// http.SetCookie(res, &http.Cookie{
-		// 	Name:    "token",
-		// 	Value:   jwt,
-		// 	Expires: expirationTime,
-		// })
 		res.Header().Set("Authorization", "Bearer "+jwt)
-
 		res.WriteHeader(http.StatusOK)
-		return
 	}
 }
 
@@ -102,15 +94,9 @@ func (r *Router) loginHandler() http.HandlerFunc {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		// expirationTime := time.Now().Add(60 * time.Minute)
-		// http.SetCookie(res, &http.Cookie{
-		// 	Name:    "token",
-		// 	Value:   jwt,
-		// 	Expires: expirationTime,
-		// })
+
 		res.Header().Set("Authorization", "Bearer "+jwt)
 		res.WriteHeader(http.StatusOK)
-		return
 	}
 
 }

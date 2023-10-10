@@ -16,12 +16,12 @@ var cliet http.Client
 
 const posturl = "http://localhost:8090/api/orders"
 
-func (s *Service) Worker(id int, postUrl string, orders <-chan int) {
+func (s *Service) Worker(id int, postURL string, orders <-chan int) {
 	for order := range orders {
 		log.Println("worker", id, "start order", order)
 	outLabel:
 		for {
-			resOrder, err := getAccrual(order, postUrl)
+			resOrder, err := getAccrual(order, postURL)
 			if err != nil {
 				log.Println(err)
 				break
@@ -66,11 +66,11 @@ func (s *Service) Worker(id int, postUrl string, orders <-chan int) {
 	}
 }
 
-func getAccrual(order int, postUrl string) (*models.Order, error) {
+func getAccrual(order int, postURL string) (*models.Order, error) {
 	for {
-		reqUrl := fmt.Sprint(postUrl, "/api/orders/", order)
-		log.Println("order", order, "URL - ", reqUrl)
-		r, err := http.NewRequest("GET", reqUrl, nil)
+		reqURL := fmt.Sprint(postURL, "/api/orders/", order)
+		log.Println("order", order, "URL - ", reqURL)
+		r, err := http.NewRequest("GET", reqURL, nil)
 		if err != nil {
 			log.Printf("Error on method newRequest get orders - %s", err)
 		}

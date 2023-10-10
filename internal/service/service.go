@@ -59,6 +59,9 @@ func (s *Service) LoadOrder(ctx context.Context, order int) error {
 	defer cancel()
 
 	user, err := s.db.GetUserFromOrder(ctx, order)
+	if err != nil {
+		return err
+	}
 
 	ctxLogin := ctx.Value("login")
 	if user != "" && user == ctxLogin {

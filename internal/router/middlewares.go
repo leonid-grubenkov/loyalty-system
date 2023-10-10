@@ -9,6 +9,10 @@ import (
 	"github.com/leonid-grubenkov/loyalty-system/internal/utils"
 )
 
+type contextKey string
+
+const loginKey contextKey = "login"
+
 func AuthHandle(h http.Handler) http.Handler {
 
 	jwtFn := func(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +39,7 @@ func AuthHandle(h http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "login", login)
+		ctx := context.WithValue(r.Context(), loginKey, login)
 
 		r = r.WithContext(ctx)
 

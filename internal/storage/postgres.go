@@ -76,6 +76,9 @@ func (d *Database) RegisterUser(login, hashPass string) error {
 		return err
 	}
 	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
 	if rows == 0 {
 		return fmt.Errorf("user_already_exist")
 	}
