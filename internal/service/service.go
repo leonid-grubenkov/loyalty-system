@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -18,10 +19,11 @@ import (
 type Service struct {
 	db     *storage.Database
 	orders chan int
+	client http.Client
 }
 
 func NewService(db *storage.Database, orders chan int) *Service {
-	return &Service{db: db, orders: orders}
+	return &Service{db: db, orders: orders, client: http.Client{}}
 }
 
 func (s *Service) Ping() error {

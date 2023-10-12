@@ -12,8 +12,6 @@ import (
 	"github.com/leonid-grubenkov/loyalty-system/internal/models"
 )
 
-var cliet http.Client
-
 const posturl = "http://localhost:8090/api/orders"
 
 func (s *Service) Worker(id int, postURL string, orders <-chan int) {
@@ -21,7 +19,7 @@ func (s *Service) Worker(id int, postURL string, orders <-chan int) {
 		log.Println("worker", id, "start order", order)
 	outLabel:
 		for {
-			resOrder, err := getAccrual(order, postURL)
+			resOrder, err := s.getAccrual(order, postURL)
 			if err != nil {
 				log.Println(err)
 				break
@@ -70,7 +68,7 @@ func (s *Service) Worker(id int, postURL string, orders <-chan int) {
 	}
 }
 
-func getAccrual(order int, postURL string) (*models.Order, error) {
+func (s *Service) getAccrual(order int, postURL string) (*models.Order, error) {
 	for {
 		reqURL := fmt.Sprint(postURL, "/api/orders/", order)
 		log.Println("order", order, "URL - ", reqURL)
@@ -78,8 +76,8 @@ func getAccrual(order int, postURL string) (*models.Order, error) {
 		if err != nil {
 			log.Printf("Error on method newRequest get orders - %s", err)
 		}
-		client := http.Client{}
-		res, err := client.Do(r)
+
+		res, err := s.client.Do(r)
 		if err != nil {
 			log.Printf("Error on method do get orders - %s", err)
 		}
